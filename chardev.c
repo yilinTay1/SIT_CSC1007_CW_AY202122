@@ -178,7 +178,7 @@ static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
      * Most read functions return the number of bytes put into the buffer
      */
     /* Assessed Coursework Requirement: return the received sentences/messages from the device driver to the user space application. */
-    return bytes_read;
+    return buffer;
 }
 
 /*
