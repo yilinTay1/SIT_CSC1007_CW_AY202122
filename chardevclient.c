@@ -1,49 +1,41 @@
-/*
-A simple C application program named chardevclient.c, to access the 
-“character device” via the new read-only device driver, chardev.c in the kernel. 
-*/
+#include<stdio.h>
+#include<stdlib.h>
+#include<errno.h>
+#include<fcntl.h>
+#include<string.h>
+#include<unistd.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
+#define BUFFER_LENGTH 256               ///< The buffer length (crude but fine)
+static char receive[BUFFER_LENGTH];     ///< The receive buffer from the LKM
 
-int main() {
-    int fd, c, rtn;
-    fd = open("/dev/chardev", O_RDWR);  // open the chardev driver
-    if (fd == -1)   // if fail to open the driver (the drive is not in kernel)
-    {
-        perror("open /dev/chardev");
-        exit(EXIT_FAILURE);
-    }
+int main(){
+   int ret, fd;
+   char stringToSend[BUFFER_LENGTH];
+   printf("Starting device test code example...\n");
+   fd = open("/dev/ebbchar", O_RDWR);             // Open the device with read/write access
+   if (fd < 0){
+      perror("Failed to open the device...");
+      return errno;
+   }
+   printf("Type in a short string to send to the kernel module:\n");
+   scanf("%[^\n]%*c", stringToSend);                // Read in a string (with spaces)
+   printf("Writing message to the device [%s].\n", stringToSend);
+   ret = write(fd, stringToSend, strlen(stringToSend)); // Send the string to the LKM
+   if (ret < 0){
+      perror("Failed to write the message to the device.");
+      return errno;
+   }
 
-    // Successfully open the chardev driver
-    printf("Reading from /dev/chardev: \n");
-    while ((rtn = read(fd, &c, 1)) > 0) // read info from the driver
-    {
-        printf("%c", c);
-    }
-    if (rtn == -1)  // fail to ready info
-    {
-        perror("reading /dev/chardev");
-    } 
-    else 
-    {
-        printf("\n");
-    }
+   printf("Press ENTER to read back from the device...\n");
+   getchar();
 
-    printf("Writing to /dev/chardev: \n");  // write info into the driver
-    c = 'h';
-    while ((rtn = write(fd, &c, 1)) > 0) 
-    {
-        printf("wrote %c\n", c);
-    }
-    if (rtn == -1) // fail to write info
-    {
-        perror("writing /dev/chardev");
-    }
-
-    exit(EXIT_SUCCESS);
+   printf("Reading from the device...\n");
+   ret = read(fd, receive, BUFFER_LENGTH);        // Read the response from the LKM
+   if (ret < 0){
+      perror("Failed to read the message from the device.");
+      return errno;
+   }
+   printf("The received message is: [%s]\n", receive);
+   printf("End of the program\n");
+   return 0;
 }
