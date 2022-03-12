@@ -22,7 +22,7 @@ int main()
 
    printf("CSC1007 assignment project - User space application program\n");
 
-   fd = open("/dev/chardev", O_RDWR); /* open the chardev driver
+   fd = open("/dev/chardev", O_RDWR); /* open the chardev driver*/
 
    if (fd == -1) /*if fail to open the driver (the drive is not in kernel) */
 
