@@ -1,69 +1,57 @@
 #include <stdio.h>
-
 #include <stdlib.h>
-
 #include <errno.h>
-
 #include <fcntl.h>
-
 #include <string.h>
+#include <unistd.h>
 
 #define BUFFER_LENGTH 256
 
 int main()
-
 {
-
-   int fd, rtn;
-
+   int fd, callback;
    char stringToSend[BUFFER_LENGTH];
-
    static char receiveString[BUFFER_LENGTH];
-
+   /* Print title*/
    printf("CSC1007 assignment project - User space application program\n");
 
-   fd = open("/dev/chardev", O_RDWR); /* open the chardev driver*/
-
-   if (fd == -1) /*if fail to open the driver (the drive is not in kernel) */
-
-   {
-
+   /* Open the chardev driver*/
+   fd = open("/dev/chardev", O_RDWR); 
+   if (fd == -1) 
+   {  
+      /*Catch missing driver exception, fail to open the driver (the drive is not in kernel) */
       perror("open /dev/chardev");
-
       exit(EXIT_FAILURE);
    }
 
-   printf("Type in a sentence/message:\n");
+   while(1){
+      printf("\n=============================================================================\n");
+      printf("\n Hint: You can CTRL + Z to exit program\n");
+      
+      printf("\nEnter sentence/message:");
+      /* Scan all the characters entered as the input, including the spaces, until we hit the enter button */
+      scanf("%[^\n]%*c", stringToSend); 
+      /* Write to driver */
+      callback = write(fd, stringToSend, strlen(stringToSend)); 
 
-   scanf("%[^\n]%*c", stringToSend); /* all the characters entered as the input, including the spaces, until we hit the enter button */
+      if (callback == -1 ) 
+      {  
+         /*Catch if fail to write message into device */
+         perror("Failed to write the message to the device.");
+         exit(EXIT_FAILURE);
+      }
 
-   rtn = write(fd, stringToSend, strlen(stringToSend));
-
-   if (rtn < 0)
-   {
-
-      perror("Failed to write the message to the device.");
-
-      exit(EXIT_FAILURE);
+      printf("\nPress the ENTER key to read from driver (Waiting for the user keyboard input ...)");
+      getchar();
+      /* Read to driver , print call back*/
+      callback = read(fd, receiveString, BUFFER_LENGTH);
+      if (callback == -1)
+      { 
+         /*Catch if fail to read message from device */
+         perror("Failed to read the message from the device.");
+         exit(EXIT_FAILURE);
+      }
+      printf("\nDriver input : %s", receiveString);
    }
-
-   printf("\nPress the ENTER key (Wait for the user keyboard input)\n");
-
-   getchar();
-
-   printf("Sentences/messages being read back from the device driver\n");
-
-   rtn = read(fd, receiveString, BUFFER_LENGTH);
-
-   if (rtn < 0)
-   {
-
-      perror("Failed to read the message from the device.");
-
-      exit(EXIT_FAILURE);
-   }
-
-   printf("%s\n", receiveString);
-
    exit(EXIT_SUCCESS);
 }
