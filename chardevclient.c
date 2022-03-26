@@ -52,6 +52,7 @@ int main()
          exit(EXIT_FAILURE);
       }
       printf("\nDriver input : %s", receiveString);
+      memset(receiveString, '\0', 256);
    }
    exit(EXIT_SUCCESS);
 }

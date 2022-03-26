@@ -90,7 +90,7 @@ void cleanup_module(void)
 
 static int device_open(struct inode *inode, struct file *file)
 {
-    static int counter = 0;
+    static int counter = 1;
     if (Device_Open)
         return -EBUSY;
     Device_Open++;
@@ -123,20 +123,19 @@ static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
                            loff_t *offset)
 {
     static int counter = 1;
-    int error_count = 0;
+    int callback = 0;
     /* Assessed Coursework Requirement: print the message “Device has been read by %d times” into the kernel space. */
     printk(KERN_INFO "Chardev driver had been read %d times\n", counter++);
- 
+    
     /* Assessed Coursework Requirement: return the received sentences/messages from the device driver to the user space application. */
-    error_count = copy_to_user(buffer, message, size_of_message);
-
-    if (error_count == 0){
+    callback = copy_to_user(buffer, message, size_of_message);
+    memset(message, '\0', 256);
+    if (callback == 0){
         printk(KERN_INFO "%d characters send from the kernel space\n", size_of_message);
         return (size_of_message = 0); /* clear the position to the start and return 0 */
     }
-
     else{
-        printk(KERN_INFO "Failed to send %d characters to the user\n", error_count);
+        printk(KERN_INFO "Failed to send %d characters to the user\n", callback);
         return -EFAULT;
     }
 }
