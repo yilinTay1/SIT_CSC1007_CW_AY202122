@@ -116,10 +116,7 @@ static int device_release(struct inode *inode, struct file *file)
  * read from it.
  */
 
-static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
-                           char *buffer,      /* buffer to fill with data */
-                           size_t length,     /* length of the buffer     */
-                           loff_t *offset)
+static ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offset)
 {
     static int counter = 1;
     int error_count = 0;
@@ -142,10 +139,7 @@ static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
     }
 }
 
-static ssize_t device_write(struct file *filp,
-                            const char *buff,
-                            size_t len,
-                            loff_t *off)
+static ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off)
 {
     static int counter = 1;
     /* Assessed Coursework Requirement: print the message “Device has been written by %d times” into the kernel space. */
