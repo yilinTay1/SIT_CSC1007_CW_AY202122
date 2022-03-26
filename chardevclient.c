@@ -16,26 +16,27 @@ int main()
    printf("CSC1007 assignment project - User space application program\n");
 
    /* Open the chardev driver*/
-   fd = open("/dev/chardev", O_RDWR); 
-   if (fd == -1) 
-   {  
+   fd = open("/dev/chardev", O_RDWR);
+   if (fd == -1)
+   {
       /*Catch missing driver exception, fail to open the driver (the drive is not in kernel) */
       perror("open /dev/chardev");
       exit(EXIT_FAILURE);
    }
 
-   while(1){
+   while (1)
+   {
       printf("\n=============================================================================\n");
       printf("\n Hint: You can CTRL + Z to exit program\n");
-      
+
       printf("\nEnter sentence/message:");
       /* Scan all the characters entered as the input, including the spaces, until we hit the enter button */
-      scanf("%[^\n]%*c", stringToSend); 
+      scanf("%[^\n]%*c", stringToSend);
       /* Write to driver */
-      callback = write(fd, stringToSend, strlen(stringToSend)); 
+      callback = write(fd, stringToSend, strlen(stringToSend));
 
-      if (callback == -1 ) 
-      {  
+      if (callback == -1)
+      {
          /*Catch if fail to write message into device */
          perror("Failed to write the message to the device.");
          exit(EXIT_FAILURE);
@@ -46,7 +47,7 @@ int main()
       /* Read to driver , print call back*/
       callback = read(fd, receiveString, BUFFER_LENGTH);
       if (callback == -1)
-      { 
+      {
          /*Catch if fail to read message from device */
          perror("Failed to read the message from the device.");
          exit(EXIT_FAILURE);
